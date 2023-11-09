@@ -1,8 +1,9 @@
 const express = require('express')
-const rounter = require('./routes/myRouter')
 const app = express()
+const part = require('path')
 
-app.use(rounter)
+app.use(express.static(part.join(__dirname,"public")))
+
 app.listen(8080,()=>{
     console.log("start server in port 8080")
 })
