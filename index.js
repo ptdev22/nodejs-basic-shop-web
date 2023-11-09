@@ -1,46 +1,23 @@
-const http = require('http')
-const fs = require('fs')
-const url = require('url')
+const express = require('express')
+const part = require('path')
+const app = express()
 
-const indexPage = fs.readFileSync(`${__dirname}/templates/index.html`)
-const productPage1 = fs.readFileSync(`${__dirname}/templates/product1.html`)
-const productPage2 = fs.readFileSync(`${__dirname}/templates/product2.html`)
-const productPage3 = fs.readFileSync(`${__dirname}/templates/product3.html`)
 
-const server = http.createServer(function(req,res){
-    // console.log(url.parse(req.url,true))
-    // const pathName = req.url
-    const {pathname,query} = url.parse(req.url,true)
-    // console.log("url : ",pathName)
-    // console.log("dir : ",__dirname)
-    // const myhtml=`
-    // <h1>hello nodeJS</h1>
-    // <p style="color:blue;" >tawatchai</p>
-    // pathName = ${pathName}
-    // `
-    // res.writeHead(201)
-    // res.write(myhtml)
-    if (pathname =="/" || pathname =="/homepage") {
-        // console.log(query.id)
-        res.end(indexPage)
-    }else if(pathname =="/product") {
-        // console.log(query.id)
-        if (query.id === "1"){
-            res.end(productPage1)
-        }else if(query.id === "2"){
-            res.end(productPage2)
-        }else if(query.id === "3"){
-            res.end(productPage3)
-        }else{
-            res.writeHead(404)
-            res.end("<h1>Not found<h1>")
-        }
-    }else{
-        res.writeHead(404)
-        res.end("<h1>Not found<h1>")
-    }
+const indexPage = part.join(__dirname,"templates/index.html")
 
+// app.get("/",(req,res)=>{
+//     res.send("Hello Express.js")
+// })
+
+app.get("/",(req,res)=>{
+    res.status(200)
+    res.type('text/html')
+    res.sendFile(indexPage)
 })
-server.listen(80,()=>{
-    console.log("start server in port 80")
+
+app.get("/product",(req,res)=>{
+    res.send("<h1>Hello product</h1>")
+})
+app.listen(8080,()=>{
+    console.log("start server in port 8080")
 })
