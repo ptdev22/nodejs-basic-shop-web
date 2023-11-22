@@ -26,20 +26,23 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <% Object.values(products).forEach(function(item){ %>
                     <tr>
-                        <td>กระเป๋า</td>
-                        <td>500</td>
-                        <td>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ut, recusandae.</td>
-                        <td><button class="btn btn-danger">ลบ</button></td>
-                        <td><button class="btn btn-primary">แก้ไข</button></td>
+                        <td><%= item.name %></td>
+                        <td><%= item.price %></td>
+                        <td><%= item.description %></td>
+                        <td>
+                            <!-- <button class="btn btn-danger">ลบ</button> -->
+                            <a class="btn btn-danger" href="/delete/<%= item._id %>" onclick="return confirm('คุณต้องการลบข้อมูลหรือไม่ ?')" >ลบ</a>
+                        </td>
+                        <td>
+                             <form method="POST" action="/edit" >
+                                <input type="text" name="edit_id" value="<%= item._id %>" >
+                                <button type="submit" class="btn btn-primary">แก้ไข</button>
+                            </form>
+                        </td>
                     </tr>
-                    <tr>
-                        <td>Mary</td>
-                        <td>Moe</td>
-                        <td>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ut, recusandae.</td>
-                        <td><button class="btn btn-danger">ลบ</button></td>
-                        <td><button class="btn btn-primary">แก้ไข</button></td>
-                    </tr>
+                    <% }) %>
                 </tbody>
             </table>
         </div>

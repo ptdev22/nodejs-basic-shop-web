@@ -1,19 +1,29 @@
-const { count } = require('console')
+// const { count } = require('console')
 const express = require('express')
 const rounter = express.Router()
-const part = require('path')
+// const part = require('path')
+const Product = require('../models/products')
 
+// upload file
+const multer = require('multer')
+const storage =multer.diskStorage({
+    destination:function(req,file,cb){
+        cb(null,'./public/images/products') // ตำแหน่งจัดเก็บไฟล์
+    },
+    filename:function(req,file,cb){
+        cb(null,Date.now()+".jpg") //เปลี่ยนชื่อไฟล์ ป้องกันชื่อช้ำ
+    }
+})
 
 // const indexPage = part.join(__dirname,"templates/index.html")
 // app.get("/",(req,res)=>{
 //     res.send("Hello Express.js")
 // })
 
-rounter.get("/",(req,res)=>{
-    // const indexPage = part.join(__dirname,"../templates/index.html")
-    // res.status(200)
-    // res.type('text/html')
-    // res.sendFile(indexPage)
+const upload = multer({
+    storage:storage
+})
+rounter.get("/",async(req,res)=>{
     const name = 'tawatchai'
     const age = 20
     const address = '<h3>กรุงเทพ<h3>'
@@ -22,7 +32,24 @@ rounter.get("/",(req,res)=>{
         {name:"เสื้อผ้า",price:2000,image:"images/products/product2.png"},
         {name:"หูฟัง",price:3000,image:"images/products/product3.png"},
     ]
-    res.render('index.ejs',{name:name,age:age,address:address,products:products})
+    // try {
+    //     let doc = await Product.find({})
+    //     res.render('index', {products:doc})
+    // } catch (err) {
+    //     console.log(err)
+    // }
+    Product.find().then(doc => 
+        res.render('index',{products:doc})
+    )
+    .catch(function (err) {
+        console.log(err);
+    });
+
+    // const indexPage = part.join(__dirname,"../templates/index.html")
+    // res.status(200)
+    // res.type('text/html')
+    // res.sendFile(indexPage)
+
 })
 
 rounter.get("/addform",(req,res)=>{
@@ -30,17 +57,100 @@ rounter.get("/addform",(req,res)=>{
 })
 
 rounter.get("/manage",(req,res)=>{
-    res.render('manage.ejs')
+    Product.find().then(doc => 
+        res.render('manage',{products:doc})
+    )
+    .catch(function (err) {
+        console.log(err);
+    });
+    // res.render('manage.ejs')
 })
 
-rounter.post("/insert",(req,res)=>{
+rounter.post("/insert",upload.single("image"),(req,res)=>{
+    // console.log(req.file)
     //GET
     // console.log(req.query)
     // console.log(req.query.name)
     //POST
     // console.log(req.body)
     // console.log(req.body.name)
-    res.render('form.ejs')
+    let data = new Product({
+        name:req.body.name,
+        price:req.body.price,
+        image:req.file.filename,
+        description:req.body.description,
+    })
+
+    // try {
+    //     await Product.saveProduct(data)
+    //     res.redirect('/')
+    // } catch (err) {
+    //     console.log(err)
+    // }
+    Product.saveProduct(data).then(()=> {
+        // console.log(models);
+        res.redirect('/')
+    })
+    .catch(function (err) {
+        console.log(err);
+    });
+    // res.render('form.ejs')
+})
+rounter.get("/delete/:id",(req,res)=>{
+    console.log("Delete id "+req.params.id)
+    // Product.findByIdAndDelete(req.params.id,{useFindAndModify:false}).exec(err=>{
+    //     res.redirect('/manage')
+    // })
+    Product.findByIdAndDelete(req.params.id,{useFindAndModify:false}).then(doc => 
+        res.redirect('/manage')
+    )
+    .catch(function (err) {
+        console.log(err);
+    });
+})
+
+rounter.get("/:id",(req,res)=>{
+    // console.log("Get id "+req.params.id)
+    const product_id = req.params.id
+    Product.findOne({_id:product_id}).then(doc => 
+        // console.log(doc)
+        res.render('product',{products:doc})
+    )
+    .catch(function (err) {
+        console.log(err);
+    });
+})
+
+rounter.post("/edit",(req,res)=>{
+    // console.log("Getedit id "+req.body.edit_id)
+    const product_id = req.body.edit_id
+    Product.findOne({_id:product_id}).then(doc => 
+        // console.log(doc)
+        res.render('edit',{product:doc})
+    )
+    .catch(function (err) {
+        console.log(err);
+    });
+})
+
+rounter.post('/update',(req,res)=>{
+    // ข้อมูลใหม่ที่ถูกส่งมาจากฟอร์มแก้ไข
+    const update_id = req.body.update_id
+    let data = {
+        name:req.body.name,
+        price:req.body.price,
+        description:req.body.description
+    }
+    // อัพเดตข้อมูล
+    // Product.findByIdAndUpdate(update_id,data,{useFindAndModify:false}).exec(err=>{
+    //     res.redirect('/manage')
+    // })
+    Product.findByIdAndUpdate(update_id,data,{useFindAndModify:false}).then(
+        res.redirect('/manage')
+    )
+    .catch(function (err) {
+        console.log(err);
+    });
 })
 // rounter.get("/product/:id",(req,res)=>{
 //     const productId = req.params.id
