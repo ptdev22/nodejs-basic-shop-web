@@ -15,4 +15,8 @@ npm install multer
 
 // use cookie
 npm install cookie-parser
+
+// use session
+npm install express-session
+
 ```

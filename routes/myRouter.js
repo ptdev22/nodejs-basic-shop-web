@@ -3,7 +3,7 @@ const express = require('express')
 const rounter = express.Router()
 // const part = require('path')
 const Product = require('../models/products')
-
+const session = require('cookie-parser')
 // upload file
 const multer = require('multer')
 const storage =multer.diskStorage({
@@ -56,7 +56,14 @@ rounter.get("/",async(req,res)=>{
 
 
 rounter.get("/addform",(req,res)=>{
-    if(req.cookies.login){
+    // cookies
+    // if(req.cookies.login){
+    //     res.render('form.ejs')
+    // }else{
+    //    res.render('admin.ejs') 
+    // }
+    // session
+    if(req.session.login){
         res.render('form.ejs')
     }else{
        res.render('admin.ejs') 
@@ -64,7 +71,23 @@ rounter.get("/addform",(req,res)=>{
 })
 
 rounter.get("/manage",(req,res)=>{
-    if(req.cookies.login){
+    // check cookies
+    // if(req.cookies.login){
+    //     Product.find().then(doc => 
+    //         res.render('manage',{products:doc})
+    //     )
+    //     .catch(function (err) {
+    //         console.log("get manage");
+    //         console.log(err);
+    //     });
+    //     // res.render('manage.ejs')
+    // }else{
+    //    res.render('admin.ejs') 
+    // }
+    // console.log("รหัส session ",req.sessionID)
+    // console.log("ข้อมูลใน session ",req.session)
+    // check session
+    if(req.session.login){
         Product.find().then(doc => 
             res.render('manage',{products:doc})
         )
@@ -76,6 +99,7 @@ rounter.get("/manage",(req,res)=>{
     }else{
        res.render('admin.ejs') 
     }
+    // ตรวจสอบ session
 
 })
 
@@ -105,7 +129,7 @@ rounter.post("/insert",upload.single("image"),(req,res)=>{
         res.redirect('/')
     })
     .catch(function (err) {
-        console.log("xxxxxxxxxxxxxxxxxxx insert");
+        console.log("post insert");
         console.log(err);
     });
     // res.render('form.ejs')
@@ -119,16 +143,23 @@ rounter.get("/delete/:id",(req,res)=>{
         res.redirect('/manage')
     )
     .catch(function (err) {
-        console.log("xxxxxxxxxxxxxxxxxxx delete");
+        console.log("get delete");
         console.log(err);
     });
 })
 
 rounter.get("/logout",(req,res)=>{
-    res.clearCookie('username')
-    res.clearCookie('password')
-    res.clearCookie('login')
-    res.redirect('/manage')
+    // clear cookie
+    // res.clearCookie('username')
+    // res.clearCookie('password')
+    // res.clearCookie('login')
+
+    // clear session
+    req.session.destroy((err)=>{
+        res.redirect('/manage')
+    })
+
+    
 })
 
 rounter.get("/:id",(req,res)=>{
@@ -181,14 +212,23 @@ rounter.post('/update',(req,res)=>{
 })
 
 rounter.post("/login",(req,res)=>{
+    
     const username = req.body.username
     const password = req.body.password
     const timeExpire = 30000 // เก็บข้อมูลใน cookie 30 วินาที
-
+console.log(req.body.username)
     if (username === "admin" && password==="1234"){
-        res.cookie('username',username,{maxAge:timeExpire})
-        res.cookie('password',username,{maxAge:timeExpire})
-        res.cookie('login',true,{maxAge:timeExpire})
+        // set cookie
+        // res.cookie('username',username,{maxAge:timeExpire})
+        // res.cookie('password',username,{maxAge:timeExpire})
+        // res.cookie('login',true,{maxAge:timeExpire})
+
+        // set session
+        req.session.username = username
+        req.session.password = password
+        req.session.login = true
+        req.session.cookie.maxAge = timeExpire
+
         res.redirect('/manage')
     }else{
         res.render('404')
