@@ -12,4 +12,7 @@ npm install mongoose
 
 // upload file
 npm install multer
+
+// use cookie
+npm install cookie-parser
 ```

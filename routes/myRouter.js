@@ -54,19 +54,29 @@ rounter.get("/",async(req,res)=>{
 
 })
 
+
 rounter.get("/addform",(req,res)=>{
-    res.render('form.ejs')
+    if(req.cookies.login){
+        res.render('form.ejs')
+    }else{
+       res.render('admin.ejs') 
+    }
 })
 
 rounter.get("/manage",(req,res)=>{
-    Product.find().then(doc => 
-        res.render('manage',{products:doc})
-    )
-    .catch(function (err) {
-        console.log("get manage");
-        console.log(err);
-    });
-    // res.render('manage.ejs')
+    if(req.cookies.login){
+        Product.find().then(doc => 
+            res.render('manage',{products:doc})
+        )
+        .catch(function (err) {
+            console.log("get manage");
+            console.log(err);
+        });
+        // res.render('manage.ejs')
+    }else{
+       res.render('admin.ejs') 
+    }
+
 })
 
 rounter.post("/insert",upload.single("image"),(req,res)=>{
@@ -114,6 +124,13 @@ rounter.get("/delete/:id",(req,res)=>{
     });
 })
 
+rounter.get("/logout",(req,res)=>{
+    res.clearCookie('username')
+    res.clearCookie('password')
+    res.clearCookie('login')
+    res.redirect('/manage')
+})
+
 rounter.get("/:id",(req,res)=>{
     // console.log("Get id "+req.params.id)
     const product_id = (req.params.id).trim()
@@ -127,6 +144,7 @@ rounter.get("/:id",(req,res)=>{
         console.log(err);
     });
 })
+
 
 rounter.post("/edit",(req,res)=>{
     // console.log("Getedit id "+req.body.edit_id)
@@ -161,6 +179,23 @@ rounter.post('/update',(req,res)=>{
         console.log(err);
     });
 })
+
+rounter.post("/login",(req,res)=>{
+    const username = req.body.username
+    const password = req.body.password
+    const timeExpire = 30000 // เก็บข้อมูลใน cookie 30 วินาที
+
+    if (username === "admin" && password==="1234"){
+        res.cookie('username',username,{maxAge:timeExpire})
+        res.cookie('password',username,{maxAge:timeExpire})
+        res.cookie('login',true,{maxAge:timeExpire})
+        res.redirect('/manage')
+    }else{
+        res.render('404')
+    }
+})
+
+
 // rounter.get("/product/:id",(req,res)=>{
 //     const productId = req.params.id
 //     // res.send(`<h1>Product ${productId}</h1>`)
