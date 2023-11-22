@@ -20,7 +20,7 @@ app.use(session({
 app.use(rounter)
 app.use(express.static(part.join(__dirname,"public")))
 
-app.listen(8080,()=>{
-    console.log("start server in port 8080")
-    console.log("start server in http://localhost:8080/")
+app.listen(80,()=>{
+    console.log("start server in port 80")
+    console.log("start server in http://localhost:80/")
 })
