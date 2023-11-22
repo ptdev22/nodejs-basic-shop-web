@@ -12,8 +12,6 @@ app.use(express.urlencoded({extended:false}))
 app.use(coolkieParser())
 app.use(session({
     secret:"mysession",
-    // resave:false,
-    // saveUninitialized:false
     resave: false,
     saveuninitialized: false
 }))
